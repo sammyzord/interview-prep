@@ -84,6 +84,44 @@ def insert(head: TreeNode | None, val: int):
     return head
 
 
+def find_in_order_predecessor(head: TreeNode):
+    if head is None:
+        return None
+
+    r = find_in_order_predecessor(head.right)
+    if r is None:
+        return head.val
+    else:
+        return r
+
+
+def delete(head: TreeNode | None, val: int):
+    if head is None:
+        return None
+
+    if head.val == val:
+        if head.left is None and head.right is None:
+            return None
+        elif head.left is None and head.right is not None:
+            return head.right
+        elif head.left is not None and head.right is None:
+            return head.left
+        else:
+            in_order_predecessor = find_in_order_predecessor(head.left)
+            head.val = in_order_predecessor
+            head.left = delete(head.left, in_order_predecessor)
+
+    elif val < head.val:
+        head.left = delete(head.left, val)
+    else:
+        head.right = delete(head.right, val)
+
+    balance = get_balance(head)
+    if balance > 1 or balance < -1:
+        head = balance_tree(head, balance)
+    return head
+
+
 def right_rotation(head: TreeNode):
     aux: TreeNode = head.left
     head.left = None
@@ -104,20 +142,23 @@ def left_rotation(head: TreeNode):
     return aux
 
 
-def loop():
-    pass
-
-
 def main():
     tree = None
     print("Add items to AVL")
     while True:
         try:
             x = input()
-            x = int(x)
-            tree = insert(tree, x)
-            print_tree(tree)
-            print('\n')
+            if x == "x":
+                y = input()
+                y = int(y)
+                tree = delete(tree, y)
+                print_tree(tree)
+                print('\n')
+            else:
+                x = int(x)
+                tree = insert(tree, x)
+                print_tree(tree)
+                print('\n')
         except:
             print("Bye!")
             break
